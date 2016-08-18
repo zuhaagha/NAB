@@ -47,6 +47,9 @@ class NumentaDetector(AnomalyDetector):
     # useful for checking the efficacy of AnomalyLikelihood. You will need
     # to re-optimize the thresholds when running with this setting.
     self.useLikelihood = True
+    self.anomalyHistory = [1.0]
+    self.threshold = 0.5
+    self.restPeriod = 20
 
 
   def getAdditionalHeaders(self):
@@ -71,6 +74,11 @@ class NumentaDetector(AnomalyDetector):
       anomalyScore = self.anomalyLikelihood.anomalyProbability(
         inputData["value"], rawScore, inputData["timestamp"])
       logScore = self.anomalyLikelihood.computeLogLikelihood(anomalyScore)
+
+      if max(self.anomalyHistory[-self.restPeriod:]) > self.threshold:
+        logScore = 0.0
+
+      self.history_anomaly.append(logScore)
       return (logScore, rawScore)
 
     return (rawScore, rawScore)
@@ -98,7 +106,7 @@ class NumentaDetector(AnomalyDetector):
       # Initialize the anomaly likelihood object
       numentaLearningPeriod = math.floor(self.probationaryPeriod / 2.0)
       self.anomalyLikelihood = anomaly_likelihood.AnomalyLikelihood(
-        claLearningPeriod=numentaLearningPeriod,
+        learningPeriod=numentaLearningPeriod,
         estimationSamples=self.probationaryPeriod-numentaLearningPeriod,
         reestimationPeriod=100
       )
