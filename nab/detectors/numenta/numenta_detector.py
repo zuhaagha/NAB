@@ -78,7 +78,7 @@ class NumentaDetector(AnomalyDetector):
       if max(self.anomalyHistory[-self.restPeriod:]) > self.threshold:
         logScore = 0.0
 
-      self.history_anomaly.append(logScore)
+      self.anomalyHistory.append(logScore)
       return (logScore, rawScore)
 
     return (rawScore, rawScore)
