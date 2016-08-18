@@ -75,6 +75,8 @@ class NumentaDetector(AnomalyDetector):
         inputData["value"], rawScore, inputData["timestamp"])
       logScore = self.anomalyLikelihood.computeLogLikelihood(anomalyScore)
 
+      # As anomalies are rare, this if-check ensures that anomalies cannot
+      # occur within close proximity i.e restPeriod of each other
       if max(self.anomalyHistory[-self.restPeriod:]) > self.threshold:
         logScore = 0.0
 
